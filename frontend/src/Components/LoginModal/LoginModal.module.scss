@@ -1,0 +1,128 @@
+$font-heading: "Syne", sans-serif;
+$font-body: "Outfit", system-ui, sans-serif;
+$border: rgba(255, 255, 255, 0.06);
+$border-hover: rgba(255, 255, 255, 0.12);
+$text: #f4f4f5;
+$text-muted: #71717a;
+$bg: #060608;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 400px;
+  background: #0c0c0f;
+  border: 1px solid $border;
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-heading;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: $text-muted;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+  &:hover {
+    color: $text;
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.error {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: 8px;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text-muted;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: $font-body;
+  font-size: 0.9375rem;
+  color: $text;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid $border;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  &::placeholder {
+    color: $text-muted;
+    opacity: 0.7;
+  }
+  &:focus {
+    border-color: $border-hover;
+  }
+}
+
+.submitBtn {
+  margin-top: 0.25rem;
+  padding: 0.875rem 1.5rem;
+  font-family: $font-body;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $bg;
+  background: $text;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  &:hover:not(:disabled) {
+    background: #fff;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}

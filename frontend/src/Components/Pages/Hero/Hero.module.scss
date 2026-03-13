@@ -1,0 +1,281 @@
+$font-heading: "Syne", sans-serif;
+$font-body: "Outfit", system-ui, sans-serif;
+
+$bg: #060608;
+$border: rgba(255, 255, 255, 0.06);
+$border-hover: rgba(255, 255, 255, 0.12);
+$text: #f4f4f5;
+$text-muted: #71717a;
+$text-dim: #52525b;
+$accent: #a78bfa;
+$accent-glow: rgba(167, 139, 250, 0.25);
+$gold: rgba(212, 175, 55, 0.35);
+$indigo: rgba(99, 102, 241, 0.12);
+
+.heroRoot {
+  position: relative;
+  min-height: 80vh;
+}
+
+// ——— Hero: двухколоночный layout ———
+.hero {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 3rem;
+  min-height: 70vh;
+  padding: 3rem 3rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.heroContent {
+  max-width: 28rem;
+}
+
+.heroLabel {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: $text-dim;
+}
+
+.heroTitle {
+  margin: 0 0 1rem;
+  font-family: $font-heading;
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: $text;
+}
+
+.heroDesc {
+  margin: 0 0 1.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: $text-muted;
+}
+
+.heroCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $text;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid $border;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: $border-hover;
+    color: #fff;
+  }
+}
+
+// Декоративный блок справа (строгая геометрия)
+.heroVisual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
+.heroCard {
+  width: 220px;
+  height: 280px;
+  border: 1px solid $border;
+  border-radius: 16px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(-3deg);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.4);
+}
+
+.heroLine {
+  position: absolute;
+  right: 15%;
+  top: 50%;
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    $gold,
+    transparent
+  );
+  opacity: 0.5;
+  transform: translateY(-50%) rotate(-15deg);
+}
+
+// ——— Catalog ———
+.catalog {
+  position: relative;
+  z-index: 2;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+.catalogTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid $border;
+}
+
+.catalogHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.catalogTitle {
+  margin: 0;
+  font-family: $font-heading;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: $text;
+}
+
+.catalogCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-dim;
+}
+
+// Фильтры по категориям
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.filterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-family: $font-body;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text-muted;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    color: $text;
+    border-color: $border-hover;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  &[data-active="true"] {
+    color: $text;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: $border-hover;
+  }
+}
+
+.filterCount {
+  font-size: 0.75rem;
+  color: $text-dim;
+  font-variant-numeric: tabular-nums;
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  font-size: 0.875rem;
+  color: $text-muted;
+  letter-spacing: 0.05em;
+}
+
+// ——— Responsive ———
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    min-height: auto;
+    padding: 2.5rem 1.5rem 3rem;
+  }
+
+  .heroContent {
+    max-width: none;
+  }
+
+  .heroVisual {
+    min-height: 200px;
+  }
+
+  .heroCard {
+    width: 160px;
+    height: 200px;
+  }
+
+  .heroLine {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 2rem 1rem 2.5rem; }
+
+  .catalog { padding: 2rem 1rem 4rem; }
+
+  .catalogTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filters {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .filterBtn {
+    flex-shrink: 0;
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+}

@@ -1,0 +1,378 @@
+$font-heading: "Syne", sans-serif;
+$font-body: "Outfit", system-ui, sans-serif;
+$border: rgba(255, 255, 255, 0.06);
+$border-hover: rgba(255, 255, 255, 0.12);
+$text: #f4f4f5;
+$text-muted: #71717a;
+$text-dim: #52525b;
+$bg: #060608;
+
+.page {
+  position: relative;
+  z-index: 2;
+  min-height: 80vh;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-family: $font-heading;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: $text;
+}
+
+.subtitle {
+  margin: 0 0 2rem;
+  font-size: 0.875rem;
+  color: $text-muted;
+}
+
+// Empty state
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.emptyIcon {
+  color: $text-dim;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+  border-radius: 50%;
+}
+
+.emptyTitle {
+  margin: 0 0 0.5rem;
+  font-family: $font-heading;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $text;
+}
+
+.emptyText {
+  margin: 0 0 1.5rem;
+  font-size: 0.9375rem;
+  color: $text-muted;
+}
+
+.emptyCta {
+  display: inline-flex;
+  padding: 0.75rem 1.5rem;
+  font-family: $font-body;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid $border;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: $border-hover;
+  }
+}
+
+// List
+.list {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid $border;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto auto auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid $border;
+  font-family: $font-body;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rowImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0c0c0f;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.rowInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.rowCategory {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $text-dim;
+}
+
+.rowTitle {
+  margin: 0;
+  font-family: $font-heading;
+  font-size: 1rem;
+  font-weight: 500;
+  color: $text;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rowPrice {
+  font-size: 0.875rem;
+  color: $text-muted;
+}
+
+.rowQty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qtyBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: $text-muted;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid $border;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  &:hover {
+    color: $text;
+    border-color: $border-hover;
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.qtyValue {
+  min-width: 2rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: $text;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowTotal {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: $text;
+  font-variant-numeric: tabular-nums;
+}
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: $text-muted;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+  &:hover {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+  }
+}
+
+// Footer
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $border;
+}
+
+.footerTotal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.footerLabel {
+  font-size: 0.8125rem;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.footerSum {
+  font-family: $font-heading;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $text;
+  font-variant-numeric: tabular-nums;
+}
+
+.authBlock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.authHint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: $text-muted;
+}
+
+.authBtn {
+  padding: 0.6rem 1.25rem;
+  font-family: $font-body;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $bg;
+  background: $text;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  &:hover {
+    background: #fff;
+  }
+}
+
+.orderError {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #f87171;
+  width: 100%;
+}
+
+.checkoutBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  font-family: $font-body;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $bg;
+  background: $text;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  &:hover:not(:disabled) {
+    background: #fff;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.backLink {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-muted;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  &:hover {
+    color: $text;
+  }
+}
+
+@media (max-width: 768px) {
+  .row {
+    grid-template-columns: 64px 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .rowImage {
+    grid-row: 1 / 4;
+    width: 64px;
+    height: 64px;
+  }
+
+  .rowInfo { grid-column: 2; }
+
+  .rowQty {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .rowTotal {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .removeBtn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .row {
+    position: relative;
+    padding-right: 3rem;
+  }
+}
