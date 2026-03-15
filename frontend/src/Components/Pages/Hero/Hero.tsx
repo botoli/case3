@@ -25,7 +25,7 @@ function Hero() {
         const fetchedProducts = Array.isArray(data) ? data : data.products;
         setProducts(fetchedProducts || []);
       })
-      .catch(() => setError("Не удалось загрузить каталог."))
+      .catch((err) => setError("Не удалось загрузить каталог."))
       .finally(() => setIsLoading(false));
   }, []);
 
