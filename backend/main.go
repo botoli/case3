@@ -87,8 +87,8 @@ func main() {
     r.HandleFunc("/orders", createOrder).Methods("POST")
     r.HandleFunc("/orders/{session_id}", getOrders).Methods("GET")
     
-    log.Println("🚀 Сервер запущен на localhost:3000")
-    log.Fatal(http.ListenAndServe(":3000", r))
+    log.Println("🚀 Сервер запущен на localhost:3001")
+    log.Fatal(http.ListenAndServe(":3001", r))
 }
 
 func createTables() {
