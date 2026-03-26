@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -27,74 +28,78 @@ type Product struct {
 }
 
 type CartItem struct {
-	ID        int     `json:"id"`
-	ProductID int     `json:"product_id"`
-	Quantity  int     `json:"quantity"`
-	SessionID string  `json:"session_id"` // для гостей
-	AddedAt   string  `json:"added_at"`
+	ID        int      `json:"id"`
+	ProductID int      `json:"product_id"`
+	Quantity  int      `json:"quantity"`
+	SessionID string   `json:"session_id"` // для гостей
+	AddedAt   string   `json:"added_at"`
 	Product   *Product `json:"product,omitempty"` // для расширенного ответа
 }
 
 type CartResponse struct {
-	Items    []CartItem `json:"items"`
-	Total    float64    `json:"total"`
-	Count    int        `json:"count"`
+	Items []CartItem `json:"items"`
+	Total float64    `json:"total"`
+	Count int        `json:"count"`
 }
 
 type Order struct {
-	ID           int        `json:"id"`
-	SessionID    string     `json:"session_id"`
-	Items        []CartItem `json:"items"`
-	Total        float64    `json:"total"`
-	Status       string     `json:"status"` // "new", "paid", "shipped"
-	CustomerName string     `json:"customer_name"`
-	CustomerEmail string    `json:"customer_email"`
-	CustomerPhone string    `json:"customer_phone"`
-	CreatedAt    string     `json:"created_at"`
+	ID            int        `json:"id"`
+	SessionID     string     `json:"session_id"`
+	Items         []CartItem `json:"items"`
+	Total         float64    `json:"total"`
+	Status        string     `json:"status"` // "new", "paid", "shipped"
+	CustomerName  string     `json:"customer_name"`
+	CustomerEmail string     `json:"customer_email"`
+	CustomerPhone string     `json:"customer_phone"`
+	CreatedAt     string     `json:"created_at"`
 }
 
 var db *sql.DB
 
 func main() {
 	connStr := "postgres://myuser:root@localhost:5432/myapi?sslmode=disable"
-	
+
 	var err error
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Ошибка подключения:", err)
 	}
 	defer db.Close()
-	
+
 	createTables()
-	
+
 	r := mux.NewRouter()
-	
+
 	// Добавляем CORS middleware для всех маршрутов
 	r.Use(corsMiddleware)
-	
+
 	// Товары
 	r.HandleFunc("/products", getProducts).Methods("GET")
 	r.HandleFunc("/products/{id}", getProduct).Methods("GET")
 	r.HandleFunc("/products", createProduct).Methods("POST")
 	r.HandleFunc("/products/{id}", updateProduct).Methods("PUT")
 	r.HandleFunc("/products/{id}", deleteProduct).Methods("DELETE")
-	
+
 	// Корзина
 	r.HandleFunc("/cart", getCart).Methods("GET")
 	r.HandleFunc("/cart/add", addToCart).Methods("POST")
 	r.HandleFunc("/cart/update/{id}", updateCartItem).Methods("PUT")
 	r.HandleFunc("/cart/remove/{id}", removeFromCart).Methods("DELETE")
 	r.HandleFunc("/cart/clear", clearCart).Methods("DELETE")
-	
+
 	// Заказы
 	r.HandleFunc("/orders", createOrder).Methods("POST")
 	r.HandleFunc("/orders/{session_id}", getOrders).Methods("GET")
-	
+
 	// Обработчик OPTIONS запросов для всех маршрутов
 	r.Methods("OPTIONS").HandlerFunc(handleOptions)
-	
-	log.Println("🚀 Сервер запущен на localhost:3001")
-	log.Fatal(http.ListenAndServe(":3001", r))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3001"
+	}
+	log.Println("🚀 Сервер запущен на" + port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 // CORS middleware
@@ -106,13 +111,13 @@ func corsMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Max-Age", "3600")
-		
+
 		// Если это preflight запрос, отправляем ответ без вызова следующего обработчика
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		
+
 		// Вызываем следующий обработчик
 		next.ServeHTTP(w, r)
 	})
@@ -143,12 +148,12 @@ func createTables() {
 		thumbnail TEXT,
 		images TEXT[]
 	);`
-	
+
 	_, err := db.Exec(productTable)
 	if err != nil {
 		log.Fatal("Ошибка создания таблицы products:", err)
 	}
-	
+
 	// Таблица корзины
 	cartTable := `
 	CREATE TABLE IF NOT EXISTS cart (
@@ -158,12 +163,12 @@ func createTables() {
 		session_id TEXT NOT NULL,
 		added_at TIMESTAMP DEFAULT NOW()
 	);`
-	
+
 	_, err = db.Exec(cartTable)
 	if err != nil {
 		log.Fatal("Ошибка создания таблицы cart:", err)
 	}
-	
+
 	// Таблица заказов
 	orderTable := `
 	CREATE TABLE IF NOT EXISTS orders (
@@ -176,12 +181,12 @@ func createTables() {
 		customer_phone TEXT,
 		created_at TIMESTAMP DEFAULT NOW()
 	);`
-	
+
 	_, err = db.Exec(orderTable)
 	if err != nil {
 		log.Fatal("Ошибка создания таблицы orders:", err)
 	}
-	
+
 	// Таблица товаров в заказе
 	orderItemsTable := `
 	CREATE TABLE IF NOT EXISTS order_items (
@@ -193,12 +198,12 @@ func createTables() {
 		product_name TEXT,
 		product_data JSONB
 	);`
-	
+
 	_, err = db.Exec(orderItemsTable)
 	if err != nil {
 		log.Fatal("Ошибка создания таблицы order_items:", err)
 	}
-	
+
 	log.Println("✅ Все таблицы созданы")
 }
 
@@ -214,7 +219,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var products []Product
 	for rows.Next() {
 		var p Product
@@ -229,7 +234,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 		}
 		products = append(products, p)
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
 }
@@ -237,7 +242,7 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 func getProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	
+
 	var p Product
 	err := db.QueryRow(`
 		SELECT id, title, description, category, price, rating, 
@@ -248,12 +253,12 @@ func getProduct(w http.ResponseWriter, r *http.Request) {
 		&p.Rating, &p.Stock, &p.Brand, &p.Thumbnail,
 		pq.Array(&p.Images),
 	)
-	
+
 	if err != nil {
 		http.Error(w, "Товар не найден", http.StatusNotFound)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(p)
 }
@@ -265,7 +270,7 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Неверный JSON", http.StatusBadRequest)
 		return
 	}
-	
+
 	var id int
 	err = db.QueryRow(`
 		INSERT INTO products (
@@ -276,12 +281,12 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 	`, p.Title, p.Description, p.Category, p.Price, p.Rating,
 		p.Stock, p.Brand, p.Thumbnail, pq.Array(p.Images),
 	).Scan(&id)
-	
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	
+
 	p.ID = id
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -291,14 +296,14 @@ func createProduct(w http.ResponseWriter, r *http.Request) {
 func updateProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	
+
 	var p Product
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		http.Error(w, "Неверный JSON", http.StatusBadRequest)
 		return
 	}
-	
+
 	_, err = db.Exec(`
 		UPDATE products SET 
 			title = $1, description = $2, category = $3, 
@@ -307,12 +312,12 @@ func updateProduct(w http.ResponseWriter, r *http.Request) {
 		WHERE id = $10
 	`, p.Title, p.Description, p.Category, p.Price, p.Rating,
 		p.Stock, p.Brand, p.Thumbnail, pq.Array(p.Images), id)
-	
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	
+
 	p.ID = id
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(p)
@@ -321,13 +326,13 @@ func updateProduct(w http.ResponseWriter, r *http.Request) {
 func deleteProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	
+
 	_, err := db.Exec("DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -338,7 +343,7 @@ func getCart(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session_id обязателен", http.StatusBadRequest)
 		return
 	}
-	
+
 	rows, err := db.Query(`
 		SELECT c.id, c.product_id, c.quantity, c.session_id, 
 			   to_char(c.added_at, 'YYYY-MM-DD HH24:MI:SS'),
@@ -353,16 +358,16 @@ func getCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var items []CartItem
 	var total float64
 	var count int
-	
+
 	for rows.Next() {
 		var item CartItem
 		var p Product
 		var addedAt string
-		
+
 		err := rows.Scan(
 			&item.ID, &item.ProductID, &item.Quantity, &item.SessionID, &addedAt,
 			&p.ID, &p.Title, &p.Price, &p.Thumbnail,
@@ -371,20 +376,20 @@ func getCart(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		
+
 		item.AddedAt = addedAt
 		item.Product = &p
 		items = append(items, item)
 		total += p.Price * float64(item.Quantity)
 		count += item.Quantity
 	}
-	
+
 	response := CartResponse{
 		Items: items,
 		Total: total,
 		Count: count,
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
@@ -395,13 +400,13 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 		Quantity  int    `json:"quantity"`
 		SessionID string `json:"session_id"`
 	}
-	
+
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil || req.ProductID == 0 || req.Quantity < 1 || req.SessionID == "" {
 		http.Error(w, "Неверные данные", http.StatusBadRequest)
 		return
 	}
-	
+
 	// Проверяем, есть ли товар
 	var stock int
 	err = db.QueryRow("SELECT stock FROM products WHERE id = $1", req.ProductID).Scan(&stock)
@@ -409,7 +414,7 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Товар не найден", http.StatusNotFound)
 		return
 	}
-	
+
 	// Проверяем, есть ли уже такой товар в корзине
 	var existingID int
 	var existingQuantity int
@@ -417,14 +422,14 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 		SELECT id, quantity FROM cart 
 		WHERE product_id = $1 AND session_id = $2
 	`, req.ProductID, req.SessionID).Scan(&existingID, &existingQuantity)
-	
+
 	if err == nil {
 		// Товар уже есть - обновляем количество
 		newQuantity := existingQuantity + req.Quantity
 		if newQuantity > stock {
 			newQuantity = stock
 		}
-		
+
 		_, err = db.Exec(`
 			UPDATE cart SET quantity = $1, added_at = NOW()
 			WHERE id = $2
@@ -436,12 +441,12 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 			VALUES ($1, $2, $3)
 		`, req.ProductID, req.Quantity, req.SessionID)
 	}
-	
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Товар добавлен в корзину"})
 }
@@ -449,17 +454,17 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 func updateCartItem(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	itemID, _ := strconv.Atoi(vars["id"])
-	
+
 	var req struct {
 		Quantity int `json:"quantity"`
 	}
-	
+
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil || req.Quantity < 1 {
 		http.Error(w, "Неверные данные", http.StatusBadRequest)
 		return
 	}
-	
+
 	// Проверяем остаток
 	var productID int
 	var stock int
@@ -469,22 +474,22 @@ func updateCartItem(w http.ResponseWriter, r *http.Request) {
 		JOIN products p ON c.product_id = p.id
 		WHERE c.id = $1
 	`, itemID).Scan(&productID, &stock)
-	
+
 	if err != nil {
 		http.Error(w, "Элемент не найден", http.StatusNotFound)
 		return
 	}
-	
+
 	if req.Quantity > stock {
 		req.Quantity = stock
 	}
-	
+
 	_, err = db.Exec("UPDATE cart SET quantity = $1 WHERE id = $2", req.Quantity, itemID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Количество обновлено"})
 }
@@ -492,13 +497,13 @@ func updateCartItem(w http.ResponseWriter, r *http.Request) {
 func removeFromCart(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	itemID, _ := strconv.Atoi(vars["id"])
-	
+
 	_, err := db.Exec("DELETE FROM cart WHERE id = $1", itemID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -508,13 +513,13 @@ func clearCart(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "session_id обязателен", http.StatusBadRequest)
 		return
 	}
-	
+
 	_, err := db.Exec("DELETE FROM cart WHERE session_id = $1", sessionID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -526,13 +531,13 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 		CustomerEmail string `json:"customer_email"`
 		CustomerPhone string `json:"customer_phone"`
 	}
-	
+
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil || req.SessionID == "" {
 		http.Error(w, "Неверные данные", http.StatusBadRequest)
 		return
 	}
-	
+
 	// Получаем товары из корзины
 	rows, err := db.Query(`
 		SELECT c.product_id, c.quantity, p.title, p.price, p.stock
@@ -545,36 +550,36 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var items []CartItem
 	var total float64
-	
+
 	for rows.Next() {
 		var item CartItem
 		var productName string
 		var price float64
 		var stock int
-		
+
 		err := rows.Scan(&item.ProductID, &item.Quantity, &productName, &price, &stock)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		
+
 		if item.Quantity > stock {
 			http.Error(w, "Недостаточно товара: "+productName, http.StatusBadRequest)
 			return
 		}
-		
+
 		items = append(items, item)
 		total += price * float64(item.Quantity)
 	}
-	
+
 	if len(items) == 0 {
 		http.Error(w, "Корзина пуста", http.StatusBadRequest)
 		return
 	}
-	
+
 	// Создаем заказ
 	var orderID int
 	err = db.QueryRow(`
@@ -582,12 +587,12 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id
 	`, req.SessionID, total, req.CustomerName, req.CustomerEmail, req.CustomerPhone).Scan(&orderID)
-	
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	// Добавляем товары в заказ и обновляем остатки
 	for _, item := range items {
 		// Получаем данные товара
@@ -599,27 +604,27 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 			&product.Title, &product.Price, &product.Description,
 			&product.Category, &product.Brand, &product.Thumbnail,
 		)
-		
+
 		if err != nil {
 			continue
 		}
-		
+
 		// Сохраняем в order_items
 		productData, _ := json.Marshal(product)
 		_, _ = db.Exec(`
 			INSERT INTO order_items (order_id, product_id, quantity, price, product_name, product_data)
 			VALUES ($1, $2, $3, $4, $5, $6)
 		`, orderID, item.ProductID, item.Quantity, product.Price, product.Title, productData)
-		
+
 		// Обновляем остаток
 		_, _ = db.Exec(`
 			UPDATE products SET stock = stock - $1 WHERE id = $2
 		`, item.Quantity, item.ProductID)
 	}
-	
+
 	// Очищаем корзину
 	db.Exec("DELETE FROM cart WHERE session_id = $1", req.SessionID)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -632,7 +637,7 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 func getOrders(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sessionID := vars["session_id"]
-	
+
 	rows, err := db.Query(`
 		SELECT id, total, status, customer_name, customer_email, 
 			   to_char(created_at, 'YYYY-MM-DD HH24:MI:SS')
@@ -645,7 +650,7 @@ func getOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var orders []Order
 	for rows.Next() {
 		var o Order
@@ -659,7 +664,7 @@ func getOrders(w http.ResponseWriter, r *http.Request) {
 		o.SessionID = sessionID
 		orders = append(orders, o)
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(orders)
 }
