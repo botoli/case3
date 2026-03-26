@@ -16,7 +16,7 @@ function Hero() {
   const [categoryFilter, setCategoryFilter] = useState<string>(ALL_CATEGORIES);
 
   useEffect(() => {
-    fetch("http://95.165.29.213:8081/products")
+    fetch("https://cluster.novextask.ru/products")
       .then((response) => {
         if (!response.ok) throw new Error("Ошибка сети");
         return response.json() as Promise<ProductsResponse>;
